@@ -2,14 +2,15 @@ const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcryptjs');
 const path = require('path');
 
-// Путь к базе данных
-const dbPath = process.env.NODE_ENV === 'production' 
-    ? '/app/data/crm.db' 
-    : path.join(__dirname, 'crm.db');
+// Путь к базе данных (исправляем логику)
+const dbPath = process.env.RAILWAY_ENVIRONMENT || process.env.NODE_ENV === 'production' 
+    ? '/app/data/crm.db'  // Только на Railway
+    : path.join(__dirname, 'crm.db'); // Локально всегда в папке database
 
-// Создание папки для БД в продакшене (ПЕРЕНЕСЛИ ВВЕРХ)
+// Создание папки для БД только на Railway
 function ensureDataDir() {
-    if (process.env.NODE_ENV === 'production') {
+    // Проверяем что мы действительно на Railway
+    if (process.env.RAILWAY_ENVIRONMENT) {
         const fs = require('fs');
         const dataDir = '/app/data';
         if (!fs.existsSync(dataDir)) {
@@ -21,8 +22,10 @@ function ensureDataDir() {
 // Создание и настройка базы данных
 function initDatabase() {
     return new Promise((resolve, reject) => {
-        // Создаем папку для БД если нужно
+        // Создаем папку для БД только на Railway
         ensureDataDir();
+        
+        console.log('Подключаемся к базе:', dbPath);
         
         const db = new sqlite3.Database(dbPath, (err) => {
             if (err) {

@@ -446,7 +446,8 @@ initDatabase().catch(err => {
 });
 
 // Запуск сервера
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 CRM сервер запущен на порту ${PORT}`);
+app.listen(PORT, () => {
+    console.log(`🚀 CRM сервер запущен на http://localhost:${PORT}`);
     console.log(`🌍 Режим: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🚂 Railway: ${process.env.RAILWAY_ENVIRONMENT ? 'Yes' : 'No'}`);
 });
