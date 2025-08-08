@@ -439,6 +439,110 @@ app.get('/edit-client', requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'edit-client.html'));
 });
 
+
+
+
+// Добавь этот API в server.js:
+app.post('/api/recreate-database', (req, res) => {
+    const { recreateKey } = req.body;
+    
+    if (recreateKey !== 'recreate-database-2024') {
+        return res.status(401).json({ error: 'Неверный ключ' });
+    }
+    
+    console.log('🗑️ ПОЛНОЕ ПЕРЕСОЗДАНИЕ БАЗЫ ДАННЫХ...');
+    
+    const fs = require('fs');
+    
+    // Удаляем старую базу если существует
+    if (fs.existsSync(dbPath)) {
+        try {
+            fs.unlinkSync(dbPath);
+            console.log('✅ Старая база удалена');
+        } catch (err) {
+            console.error('Ошибка удаления старой базы:', err);
+            return res.status(500).json({ error: 'Не удалось удалить старую базу' });
+        }
+    }
+    
+    // Создаем новую базу с правильной структурой
+    const db = new sqlite3.Database(dbPath, (err) => {
+        if (err) {
+            console.error('Ошибка создания новой базы:', err);
+            return res.status(500).json({ error: 'Ошибка создания базы' });
+        }
+        console.log('✅ Новая база создана');
+    });
+    
+    // Создаем таблицу пользователей
+    db.run(`
+        CREATE TABLE users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            full_name TEXT
+        )
+    `, (err) => {
+        if (err) {
+            console.error('Ошибка создания таблицы users:', err);
+            db.close();
+            return res.status(500).json({ error: 'Ошибка создания таблицы users' });
+        }
+        console.log('✅ Таблица users создана');
+        
+        // Создаем таблицу клиентов с ВСЕМИ полями сразу
+        db.run(`
+            CREATE TABLE clients (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                client_id TEXT,
+                project_name TEXT NOT NULL,
+                client_contact TEXT NOT NULL,
+                technical_task TEXT,
+                status TEXT DEFAULT 'Новый',
+                price REAL,
+                deadline_days INTEGER,
+                notes TEXT,
+                date_created DATETIME DEFAULT CURRENT_TIMESTAMP,
+                days_passed INTEGER DEFAULT 0
+            )
+        `, (err) => {
+            if (err) {
+                console.error('Ошибка создания таблицы clients:', err);
+                db.close();
+                return res.status(500).json({ error: 'Ошибка создания таблицы clients' });
+            }
+            console.log('✅ Таблица clients создана со всеми полями');
+            
+            // Проверяем структуру
+            db.all("PRAGMA table_info(clients)", (err, columns) => {
+                if (err) {
+                    console.error('Ошибка проверки структуры:', err);
+                } else {
+                    console.log('📋 Поля в таблице clients:');
+                    columns.forEach(col => console.log(`- ${col.name} (${col.type})`));
+                }
+                
+                db.close();
+                
+                res.json({
+                    success: true,
+                    message: 'База данных полностью пересоздана',
+                    tables: ['users', 'clients'],
+                    fields: columns ? columns.map(col => col.name) : []
+                });
+                
+                console.log('🎉 БАЗА ДАННЫХ ПЕРЕСОЗДАНА УСПЕШНО!');
+            });
+        });
+    });
+});
+
+// В server.js:
+app.get('/recreate', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'recreate.html'));
+});
+
 // Инициализация базы данных при запуске
 initDatabase().catch(err => {
     console.error('Критическая ошибка БД:', err);
