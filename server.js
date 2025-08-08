@@ -27,6 +27,11 @@ app.use(session({
     }
 }));
 
+// Добавь после настройки статических файлов:
+app.get('/favicon.ico', (req, res) => {
+    res.status(204).end(); // Возвращаем пустой ответ для favicon
+});
+
 // Базовый роут
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -492,6 +497,13 @@ app.post('/api/import-data', requireAuth, (req, res) => {
         res.status(500).json({ error: 'Ошибка импорта данных' });
     });
 });
+
+// Добавь после других роутов:
+app.get('/import', requireAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'import.html'));
+});
+
+
 
 // Инициализация базы данных при запуске
 initDatabase().catch(err => {
