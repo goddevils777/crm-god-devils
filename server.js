@@ -441,60 +441,125 @@ app.get('/edit-client', requireAuth, (req, res) => {
 
 
 // Добавь в server.js после других API
+// Заменяем весь API импорта на этот с логированием:
 app.post('/api/import-data', (req, res) => {
-    const { users, clients } = req.body;
+    console.log('=== НАЧАЛО ИМПОРТА ===');
+    
+    const { users, clients, importKey } = req.body;
+    
+    console.log('Получены данные:', {
+        usersCount: users ? users.length : 0,
+        clientsCount: clients ? clients.length : 0,
+        hasImportKey: !!importKey
+    });
+    
+    // Простая проверка ключа
+    if (importKey !== 'god-devils-import-2024') {
+        console.log('Неверный ключ импорта');
+        return res.status(401).json({ error: 'Неверный ключ импорта' });
+    }
     
     if (!users || !clients) {
+        console.log('Отсутствуют данные для импорта');
         return res.status(400).json({ error: 'Данные для импорта не найдены' });
     }
     
-    const db = new sqlite3.Database(dbPath);
+    console.log('Подключаемся к базе данных:', dbPath);
+    const db = new sqlite3.Database(dbPath, (err) => {
+        if (err) {
+            console.error('Ошибка подключения к БД:', err);
+            return res.status(500).json({ error: 'Ошибка подключения к базе данных' });
+        }
+        console.log('База данных подключена успешно');
+    });
     
     // Импортируем пользователей
-    const userPromises = users.map(user => {
+    console.log('Начинаем импорт пользователей...');
+    let completedUsers = 0;
+    
+    const userPromises = users.map((user, index) => {
         return new Promise((resolve, reject) => {
+            console.log(`Импортируем пользователя ${index + 1}:`, user.username);
+            
             db.run(
                 'INSERT OR IGNORE INTO users (username, password, created_at) VALUES (?, ?, ?)',
                 [user.username, user.password, user.created_at],
                 function(err) {
-                    if (err) reject(err);
-                    else resolve(this.lastID);
+                    if (err) {
+                        console.error(`Ошибка импорта пользователя ${user.username}:`, err);
+                        reject(err);
+                    } else {
+                        completedUsers++;
+                        console.log(`Пользователь ${user.username} импортирован, ID:`, this.lastID);
+                        resolve(this.lastID);
+                    }
                 }
             );
         });
     });
     
     Promise.all(userPromises).then(() => {
+        console.log(`Все пользователи импортированы: ${completedUsers}/${users.length}`);
+        console.log('Начинаем импорт клиентов...');
+        
+        let completedClients = 0;
+        
         // Импортируем клиентов
-        const clientPromises = clients.map(client => {
+        const clientPromises = clients.map((client, index) => {
             return new Promise((resolve, reject) => {
+                console.log(`Импортируем клиента ${index + 1}:`, client.project_name);
+                
                 db.run(`
                     INSERT OR IGNORE INTO clients 
                     (client_id, project_name, client_contact, technical_task, status, 
                      price, deadline_days, notes, date_created, days_passed) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 `, [
-                    client.client_id, client.project_name, client.client_contact,
-                    client.technical_task, client.status, client.price,
-                    client.deadline_days, client.notes, client.date_created, client.days_passed
+                    client.client_id || null,
+                    client.project_name,
+                    client.client_contact,
+                    client.technical_task || '',
+                    client.status || 'Новый',
+                    client.price || null,
+                    client.deadline_days || null,
+                    client.notes || '',
+                    client.date_created,
+                    client.days_passed || 0
                 ], function(err) {
-                    if (err) reject(err);
-                    else resolve(this.lastID);
+                    if (err) {
+                        console.error(`Ошибка импорта клиента ${client.project_name}:`, err);
+                        reject(err);
+                    } else {
+                        completedClients++;
+                        console.log(`Клиент ${client.project_name} импортирован, ID:`, this.lastID);
+                        resolve(this.lastID);
+                    }
                 });
             });
         });
         
         return Promise.all(clientPromises);
+        
     }).then(() => {
+        console.log(`Все клиенты импортированы: ${completedClients}/${clients.length}`);
         db.close();
+        
+        const message = `Импортировано: ${completedUsers} пользователей, ${completedClients} клиентов`;
+        console.log('=== ИМПОРТ ЗАВЕРШЕН ===');
+        console.log(message);
+        
         res.json({ 
             success: true, 
-            message: `Импортировано: ${users.length} пользователей, ${clients.length} клиентов` 
+            message: message
         });
+        
     }).catch(err => {
-        console.error('Ошибка импорта:', err);
+        console.error('=== ОШИБКА ИМПОРТА ===');
+        console.error('Детали ошибки:', err);
         db.close();
-        res.status(500).json({ error: 'Ошибка импорта данных' });
+        res.status(500).json({ 
+            error: 'Ошибка импорта данных: ' + err.message 
+        });
     });
 });
 
