@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>God & Devils 😇 - CRM Панель 😈</title>
+        <!-- Найди или добавь в <head>: -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☁️</text></svg>">
+    <link rel="stylesheet" href="crm.css">
+</head>
+<body>
+    <div class="crm-container">
+        <div id="header-container"></div>
+        
+        <div class="controls">
+            <h1>CRM - Учет клиентов</h1>
+            <button class="add-btn" id="addClientBtn">+ Добавить клиента</button>
+        </div>
+        
+        <div class="clients-table" id="clientsTable">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Проект</th>
+                        <th>Контакт</th>
+                        <th>Статус</th>
+                        <th>Цена ($)</th>
+                        <th>Дата</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="clientsBody">
+                    <!-- Клиенты будут добавляться через JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script src="common.js"></script>
+    <script src="crm.js"></script>
+</body>
+</html>

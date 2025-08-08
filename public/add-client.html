@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить клиента 😈 - God & Devils 😇 CRM</title>
+
+    <!-- Найди или добавь в <head>: -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☁️</text></svg>">
+    <link rel="stylesheet" href="crm.css">
+    <link rel="stylesheet" href="forms.css">
+</head>
+<body>
+    <div class="crm-container">
+        <div id="header-container"></div>
+        
+        <div class="page-header">
+            <h1>Добавить клиента</h1>
+            <a href="/crm" class="back-btn">← Назад к списку</a>
+        </div>
+        
+        <div class="form-container wide">
+            <form id="clientForm">
+                <div class="form-section">
+                    <h3>Основная информация</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>ID клиента</label>
+                            <input type="text" id="clientId" readonly placeholder="Присваивается автоматически">
+                        </div>
+                        <div class="form-group">
+                            <label>Название проекта *</label>
+                            <input type="text" id="projectName" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Контакт клиента *</label>
+                            <input type="text" id="clientContact" required placeholder="Имя, телефон, email">
+                        </div>
+                        <div class="form-group">
+                            <label>Статус</label>
+                            <select id="status">
+                                <option value="Новый">🆕 Новый</option>
+                                <option value="Обсуждение ТЗ">💬 Обсуждение ТЗ</option>
+                                <option value="Ожидание оплаты">💰 Ожидание оплаты</option>
+                                <option value="В работе">⚡ В работе</option>
+                                <option value="На проверке">👀 На проверке</option>
+                                <option value="Доработки">🔧 Доработки</option>
+                                <option value="Тестирование">🧪 Тестирование</option>
+                                <option value="Готов к сдаче">✅ Готов к сдаче</option>
+                                <option value="Завершен">🎉 Завершен</option>
+                                <option value="Приостановлен">⏸️ Приостановлен</option>
+                                <option value="Отменен">❌ Отменен</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>Техническое задание</h3>
+                    <div class="form-group">
+                        <textarea id="technicalTask" rows="5" placeholder="Подробное описание проекта, требования, пожелания клиента..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>Коммерческие условия</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Цена проекта ($)</label>
+                            <input type="number" id="price" min="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Дедлайн (дней)</label>
+                            <select id="deadline">
+                                <option value="">Не указан</option>
+                                <option value="1">1 день</option>
+                                <option value="2">2 дня</option>
+                                <option value="3">3 дня</option>
+                                <option value="5">5 дней</option>
+                                <option value="7">1 неделя (7 дней)</option>
+                                <option value="10">10 дней</option>
+                                <option value="14">2 недели (14 дней)</option>
+                                <option value="21">3 недели (21 день)</option>
+                                <option value="30">1 месяц (30 дней)</option>
+                                <option value="45">45 дней</option>
+                                <option value="60">2 месяца (60 дней)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>Дополнительная информация</h3>
+                    <div class="form-group">
+                        <label>Заметки и комментарии</label>
+                        <textarea id="notes" rows="4" placeholder="Дополнительные заметки, особенности работы с клиентом..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="/crm" class="btn-cancel">Отмена</a>
+                    <button type="submit" class="btn-save">Сохранить клиента</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="common.js"></script>
+    <script src="add-client.js"></script>
+</body>
+</html>

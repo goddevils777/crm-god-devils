@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация 😈 - God & Devils 😇 CRM</title>
+    <!-- Найди или добавь в <head>: -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☁️</text></svg>">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .register-form {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+        }
+        
+        .register-form h2 {
+            text-align: center;
+            color: #1d1d1f;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #1d1d1f;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #d1d1d6;
+            border-radius: 12px;
+            font-size: 16px;
+            background: #ffffff;
+            transition: all 0.2s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #007aff;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+        
+        .form-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn-register {
+            width: 100%;
+            padding: 16px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-register:hover {
+            background: #0056cc;
+        }
+        
+        .btn-register:active {
+            transform: scale(0.98);
+        }
+        
+        .login-link {
+            text-align: center;
+            color: #007aff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .login-link:hover {
+            text-decoration: underline;
+        }
+        
+        .password-strength {
+            font-size: 12px;
+            margin-top: 5px;
+            padding: 5px 0;
+        }
+        
+        .strength-weak { color: #ff3b30; }
+        .strength-medium { color: #ff9500; }
+        .strength-strong { color: #34c759; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="emoji">😇</span>
+            <span class="text">God & Devils</span>
+            <span class="emoji">😈</span>
+        </div>
+        
+        <div class="register-form">
+            <h2>Регистрация в CRM</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="username">Логин</label>
+                    <input type="text" id="username" required minlength="3" maxlength="20">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <input type="password" id="password" required minlength="6">
+                    <div class="password-strength" id="passwordStrength"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Подтвердите пароль</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                
+          
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn-register">Зарегистрироваться</button>
+                    <a href="/" class="login-link">Уже есть аккаунт? Войти</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="register.js"></script>
+</body>
+</html>
