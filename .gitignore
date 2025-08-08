@@ -1,6 +1,31 @@
+# Dependencies
 node_modules/
-.DS_Store
+
+# Logs
 *.log
+npm-debug.log*
+
+# Environment variables
 .env
-database/crm.db
-database-export.json
+.env.local
+
+# Database files (exclude ALL)
+*.db
+*.sqlite
+*.sqlite3
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Build outputs
+dist/
+build/
