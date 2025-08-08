@@ -434,6 +434,65 @@ app.get('/edit-client', requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'edit-client.html'));
 });
 
+
+// Добавь в server.js после других API
+app.post('/api/import-data', requireAuth, (req, res) => {
+    const { users, clients } = req.body;
+    
+    if (!users || !clients) {
+        return res.status(400).json({ error: 'Данные для импорта не найдены' });
+    }
+    
+    const db = new sqlite3.Database(dbPath);
+    
+    // Импортируем пользователей
+    const userPromises = users.map(user => {
+        return new Promise((resolve, reject) => {
+            db.run(
+                'INSERT OR IGNORE INTO users (username, password, created_at) VALUES (?, ?, ?)',
+                [user.username, user.password, user.created_at],
+                function(err) {
+                    if (err) reject(err);
+                    else resolve(this.lastID);
+                }
+            );
+        });
+    });
+    
+    Promise.all(userPromises).then(() => {
+        // Импортируем клиентов
+        const clientPromises = clients.map(client => {
+            return new Promise((resolve, reject) => {
+                db.run(`
+                    INSERT OR IGNORE INTO clients 
+                    (client_id, project_name, client_contact, technical_task, status, 
+                     price, deadline_days, notes, date_created, days_passed) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                `, [
+                    client.client_id, client.project_name, client.client_contact,
+                    client.technical_task, client.status, client.price,
+                    client.deadline_days, client.notes, client.date_created, client.days_passed
+                ], function(err) {
+                    if (err) reject(err);
+                    else resolve(this.lastID);
+                });
+            });
+        });
+        
+        return Promise.all(clientPromises);
+    }).then(() => {
+        db.close();
+        res.json({ 
+            success: true, 
+            message: `Импортировано: ${users.length} пользователей, ${clients.length} клиентов` 
+        });
+    }).catch(err => {
+        console.error('Ошибка импорта:', err);
+        db.close();
+        res.status(500).json({ error: 'Ошибка импорта данных' });
+    });
+});
+
 // Инициализация базы данных при запуске
 initDatabase().catch(err => {
     console.error('Критическая ошибка БД:', err);
