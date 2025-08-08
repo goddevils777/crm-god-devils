@@ -58,54 +58,59 @@
     
     <script>
     async function importData() {
-        const statusDiv = document.getElementById('status');
-        const fileInput = document.getElementById('fileInput');
-        const file = fileInput.files[0];
-        
-        if (!file) {
-            showStatus('Выберите файл для импорта', 'error');
-            return;
-        }
-        
-        if (!file.name.endsWith('.json')) {
-            showStatus('Файл должен быть в формате JSON', 'error');
-            return;
-        }
-        
-        try {
-            showStatus('Читаем файл...', 'info');
-            const text = await file.text();
-            
-            showStatus('Парсим данные...', 'info');
-            const data = JSON.parse(text);
-            
-            if (!data.users || !data.clients) {
-                showStatus('Неверный формат файла. Нужны поля users и clients', 'error');
-                return;
-            }
-            
-            showStatus(`Импортируем ${data.users.length} пользователей и ${data.clients.length} клиентов...`, 'info');
-            
-            const response = await fetch('/api/import-data', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
-            });
-            
-            const result = await response.json();
-            
-            if (response.ok && result.success) {
-                showStatus('✅ ' + result.message, 'success');
-                fileInput.value = ''; // Очищаем поле
-            } else {
-                showStatus('❌ ' + (result.error || 'Ошибка импорта'), 'error');
-            }
-            
-        } catch (error) {
-            console.error('Ошибка:', error);
-            showStatus('❌ Ошибка: ' + error.message, 'error');
-        }
+    const statusDiv = document.getElementById('status');
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        showStatus('Выберите файл для импорта', 'error');
+        return;
     }
+    
+    try {
+        showStatus('Читаем файл...', 'info');
+        const text = await file.text();
+        
+        showStatus('Парсим данные...', 'info');
+        const data = JSON.parse(text);
+        
+        if (!data.users || !data.clients) {
+            showStatus('Неверный формат файла. Нужны поля users и clients', 'error');
+            return;
+        }
+        
+        showStatus(`Импортируем ${data.users.length} пользователей и ${data.clients.length} клиентов...`, 'info');
+        
+        const response = await fetch('/api/import-data', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                ...data,
+                importKey: 'god-devils-import-2024'
+            })
+        });
+        
+        if (!response.ok) {
+            const text = await response.text();
+            console.log('Response:', text);
+            showStatus('❌ Ошибка сервера: ' + response.status, 'error');
+            return;
+        }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showStatus('✅ ' + result.message, 'success');
+            fileInput.value = '';
+        } else {
+            showStatus('❌ ' + result.error, 'error');
+        }
+        
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showStatus('❌ Ошибка: ' + error.message, 'error');
+    }
+}
     
     function showStatus(message, type) {
         const statusDiv = document.getElementById('status');

@@ -441,7 +441,7 @@ app.get('/edit-client', requireAuth, (req, res) => {
 
 
 // Добавь в server.js после других API
-app.post('/api/import-data', requireAuth, (req, res) => {
+app.post('/api/import-data', (req, res) => {
     const { users, clients } = req.body;
     
     if (!users || !clients) {
