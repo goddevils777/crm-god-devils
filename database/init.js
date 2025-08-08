@@ -2,7 +2,21 @@ const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcryptjs');
 const path = require('path');
 
-const dbPath = path.join(__dirname, 'crm.db');
+// Путь к базе данных
+const dbPath = process.env.NODE_ENV === 'production' 
+    ? '/app/data/crm.db' 
+    : path.join(__dirname, 'crm.db');
+
+// Создание папки для БД в продакшене (ПЕРЕНЕСЛИ ВВЕРХ)
+function ensureDataDir() {
+    if (process.env.NODE_ENV === 'production') {
+        const fs = require('fs');
+        const dataDir = '/app/data';
+        if (!fs.existsSync(dataDir)) {
+            fs.mkdirSync(dataDir, { recursive: true });
+        }
+    }
+}
 
 // Создание и настройка базы данных
 function initDatabase() {
