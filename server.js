@@ -563,6 +563,65 @@ app.post('/api/import-data', (req, res) => {
     });
 });
 
+// Добавь этот API после других:
+app.post('/api/migrate-database', (req, res) => {
+    const { migrateKey } = req.body;
+    
+    if (migrateKey !== 'god-devils-migrate-2024') {
+        return res.status(401).json({ error: 'Неверный ключ миграции' });
+    }
+    
+    console.log('Запуск миграции базы данных...');
+    const db = new sqlite3.Database(dbPath);
+    
+    // Добавляем недостающие поля
+    const migrations = [
+        { sql: 'ALTER TABLE clients ADD COLUMN client_id TEXT', field: 'client_id' },
+        { sql: 'ALTER TABLE clients ADD COLUMN deadline_days INTEGER', field: 'deadline_days' },
+        { sql: 'ALTER TABLE clients ADD COLUMN days_passed INTEGER DEFAULT 0', field: 'days_passed' }
+    ];
+    
+    let completed = 0;
+    const results = [];
+    
+    migrations.forEach((migration, index) => {
+        db.run(migration.sql, (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error(`Ошибка добавления ${migration.field}:`, err.message);
+                results.push(`❌ ${migration.field}: ${err.message}`);
+            } else {
+                console.log(`✅ Поле ${migration.field} добавлено`);
+                results.push(`✅ ${migration.field}: успешно`);
+            }
+            
+            completed++;
+            if (completed === migrations.length) {
+                // Проверяем структуру таблицы
+                db.all("PRAGMA table_info(clients)", (err, columns) => {
+                    db.close();
+                    
+                    if (err) {
+                        return res.status(500).json({ error: 'Ошибка проверки структуры' });
+                    }
+                    
+                    const columnNames = columns.map(col => col.name);
+                    res.json({ 
+                        success: true, 
+                        message: 'Миграция завершена',
+                        results: results,
+                        columns: columnNames
+                    });
+                });
+            }
+        });
+    });
+});
+
+// В server.js добавь:
+app.get('/migrate', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'migrate.html'));
+});
+
 // Добавь после других роутов:
 app.get('/import', requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'import.html'));

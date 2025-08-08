@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Миграция базы данных</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☁️</text></svg>">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        button { padding: 12px 24px; background: #007aff; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        .status { margin-top: 20px; padding: 10px; border-radius: 8px; }
+        .success { background: #e8f5e8; color: #388e3c; }
+        .error { background: #ffebee; color: #d32f2f; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Миграция базы данных</h1>
+        <p>Добавляет недостающие поля в таблицу clients</p>
+        
+        <button onclick="migrateDatabase()">🚀 Запустить миграцию</button>
+        
+        <div id="status"></div>
+        
+        <hr style="margin: 30px 0;">
+        <p><a href="/import">→ Перейти к импорту данных</a></p>
+        <p><a href="/crm">← Вернуться в CRM</a></p>
+    </div>
+    
+    <script>
+    async function migrateDatabase() {
+        const statusDiv = document.getElementById('status');
+        
+        try {
+            statusDiv.innerHTML = 'Запускаем миграцию...';
+            
+            const response = await fetch('/api/migrate-database', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ migrateKey: 'god-devils-migrate-2024' })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = `
+                    <h3>✅ ${result.message}</h3>
+                    <p><strong>Результаты:</strong></p>
+                    <ul>${result.results.map(r => `<li>${r}</li>`).join('')}</ul>
+                    <p><strong>Поля в таблице:</strong> ${result.columns.join(', ')}</p>
+                `;
+            } else {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = `❌ ${result.error}`;
+            }
+            
+        } catch (error) {
+            statusDiv.className = 'status error';
+            statusDiv.innerHTML = `❌ Ошибка: ${error.message}`;
+        }
+    }
+    </script>
+</body>
+</html>
